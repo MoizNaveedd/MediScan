@@ -1,0 +1,198 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  min-height: 100vh;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #0ea5e9;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0284c7;
+}
+
+/* Scanner animation */
+@keyframes scan-line {
+  0% {
+    top: 0;
+  }
+  50% {
+    top: calc(100% - 4px);
+  }
+  100% {
+    top: 0;
+  }
+}
+
+.scan-line {
+  animation: scan-line 2s ease-in-out infinite;
+}
+
+/* Pulse animation for scanner */
+@keyframes pulse-border {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 20px rgba(14, 165, 233, 0);
+  }
+}
+
+.pulse-border {
+  animation: pulse-border 2s ease-in-out infinite;
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* HTML5 QR Code Scanner Styles */
+.qr-reader-container {
+  position: relative;
+  width: 100%;
+  min-height: 400px;
+  background: #1f2937;
+  border-radius: 1.5rem;
+  overflow: hidden;
+}
+
+#qr-reader {
+  width: 100% !important;
+  border: none !important;
+  background: #1f2937 !important;
+}
+
+/* IMPORTANT: Make sure video is visible */
+#qr-reader video {
+  width: 100% !important;
+  height: 400px !important;
+  object-fit: cover !important;
+  border-radius: 1rem !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+#qr-reader__scan_region {
+  background: #1f2937 !important;
+  min-height: 400px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+#qr-reader__scan_region > video {
+  width: 100% !important;
+  max-width: 500px !important;
+  height: 400px !important;
+  object-fit: cover !important;
+  border-radius: 0.75rem !important;
+  display: block !important;
+}
+
+/* Hide the scan region border/canvas that might cover video */
+#qr-reader__scan_region > canvas {
+  position: absolute !important;
+  pointer-events: none !important;
+}
+
+/* Hide any placeholder images */
+#qr-reader__scan_region img,
+#qr-reader img[alt="Info icon"] {
+  display: none !important;
+}
+
+/* Style the shaded region overlay */
+#qr-reader > div:first-child {
+  min-height: 400px !important;
+}
+
+#qr-reader__dashboard {
+  padding: 15px !important;
+  background: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+}
+
+#qr-reader__dashboard span {
+  color: #475569 !important;
+  font-size: 0.875rem !important;
+}
+
+#qr-reader__dashboard_section {
+  padding: 10px 0 !important;
+}
+
+#qr-reader__dashboard_section_csr span {
+  color: #64748b !important;
+}
+
+#qr-reader__dashboard button {
+  background: #0ea5e9 !important;
+  color: white !important;
+  border: none !important;
+  padding: 10px 20px !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  font-weight: 600 !important;
+  margin: 5px !important;
+  transition: background 0.2s !important;
+}
+
+#qr-reader__dashboard button:hover {
+  background: #0284c7 !important;
+}
+
+#qr-reader__dashboard select,
+#qr-reader__camera_selection {
+  padding: 10px 14px !important;
+  border-radius: 10px !important;
+  border: 2px solid #e2e8f0 !important;
+  background: white !important;
+  cursor: pointer !important;
+  font-size: 0.875rem !important;
+  min-width: 200px !important;
+}
+
+#qr-reader__header_message {
+  display: none !important;
+}
+
+/* Style the QR scanning box overlay */
+#qr-shaded-region {
+  border-color: rgba(14, 165, 233, 0.6) !important;
+  border-width: 3px !important;
+}
+
+/* Remove any blocking elements */
+#qr-reader__status_span {
+  display: none !important;
+}
+
+/* Ensure proper stacking */
+#qr-reader > div {
+  position: relative !important;
+}
