@@ -8,6 +8,7 @@ export const drugs = [
     batchNo: "ABCD",
     mfgDate: "01/15/2024",
     expDate: "01/15/2026",
+    serialNumber: "ABC123456",
     authenticityVerified: true,
     doses: [
       { strength: "250mg", form: "Tablet" },
@@ -58,52 +59,69 @@ export const drugs = [
     ]
   },
   {
-    id: "amoxicillin",
-    name: "Amoxicillin",
-    genericName: "Amoxicillin Trihydrate",
-    category: "Anti Bacterial",
+    id: "amlodipine-besylate",
+    name: "Amlodipine Besylate",
+    genericName: "Amlodipine Besylate",
+    category: "Anti Hypertensive",
     manufacturer: "MediScan Pharma",
-    batchNo: "EFGH",
+    batchNo: "ABCD",
     mfgDate: "02/20/2024",
     expDate: "02/20/2026",
+    serialNumber: "DEF456789",
     authenticityVerified: true,
     doses: [
-      { strength: "250mg", form: "Capsule" },
-      { strength: "500mg", form: "Capsule" },
-      { strength: "875mg", form: "Tablet" }
+      { strength: "2.5mg", form: "Tablet" },
+      { strength: "5mg", form: "Tablet" },
+      { strength: "10mg", form: "Tablet" }
     ],
     warnings: {
-      allergies: "Do not use if allergic to penicillin or cephalosporin antibiotics.",
-      pregnancy: "Generally considered safe during pregnancy, but consult healthcare provider.",
-      renalImpairment: "Dose adjustment may be required in patients with severe renal impairment.",
-      storage: "Store at room temperature 20°C to 25°C. Keep away from moisture."
+      betaBlockerWithdrawal: "Increased Angina or Myocardial Infarction may occur after abrupt discontinuation of beta-blockers.",
+      congestiveHeartFailure: "Use with caution in patients with Congestive Heart Failure.",
+      hypotension: "Hypotension may occur, especially in patients with severe aortic stenosis.",
+      peripheralEdema: "Peripheral edema may occur, particularly in elderly patients.",
+      hepaticImpairment: "Use with caution in patients with severe hepatic function or impairment.",
+      nursingMothers: "Use with caution in nursing mothers.",
+      pediatrics: "Safety and effectiveness in pediatric patients (0-17 years of age) have not been established.",
+      geriatrics: "Use with caution in geriatric patients (>65 years of age).",
+      storage: "Store between 15°C and 30°C. Protect from light."
     },
-    authenticityNote: "Verify authenticity by scanning QR code and checking batch number.",
+    authenticityNote: "Scan the QR code, batch number on the package. Use only if the seal is intact.",
     indications: [
-      "Upper respiratory tract infections",
-      "Lower respiratory tract infections",
-      "Skin and skin structure infections",
-      "Urinary tract infections",
-      "H. pylori eradication",
-      "Dental infections"
+      "Hypertension",
+      "Chronic Stable Angina"
     ],
     regimen: {
-      general: "Treatment duration typically 7-10 days. Continue for 48-72 hours after symptoms resolve.",
+      general: "For both hypertension and angina, the recommended initial dose of amlodipine besylate is 5 mg once daily. If necessary, dose can be increased after 1 – 2 weeks to a maximum dose of 10 mg once daily.",
       specific: [
-        { condition: "Mild to moderate infections", duration: "250-500mg every 8 hours" },
-        { condition: "Severe infections", duration: "875mg every 12 hours" },
-        { condition: "H. pylori", duration: "14 days as part of combination therapy" }
+        { condition: "Elderly or Impaired Renal Function", duration: "Recommended initial dose is 5 mg once daily. If required, increasing in the dose should be done gradually and with caution." },
+        { condition: "Impaired Hepatic Function", duration: "Dosage requirements have not been established. Dosage should be carefully and gradually adjusted depending on patient's tolerance and response. A lower starting dose of 2.5 mg once daily should be considered." },
+        { condition: "Pediatric Patients (6-17 years)", duration: "Effective antihypertensive oral dose is 2.5 mg to 5 mg once daily." }
       ]
     },
     foodInteractions: [
-      { item: "Food", effect: "Can be taken with or without food" },
-      { item: "Antacids", effect: "May reduce absorption - take 2 hours apart" }
+      { item: "Grapefruit / Grapefruit juice", effect: "Avoid - may increase amlodipine levels" },
+      { item: "Regular food", effect: "Can be taken with or without food" },
+      { item: "St. John's Wort (Herb)", effect: "Avoid - may decrease amlodipine levels" }
     ],
     drugInteractions: [
-      { drug: "Methotrexate", useful: "Not useful", description: "Increased methotrexate toxicity" },
-      { drug: "Warfarin", useful: "Not useful", description: "May enhance anticoagulant effect" },
-      { drug: "Probenecid", useful: "Useful", description: "Increases amoxicillin levels" },
-      { drug: "Allopurinol", useful: "Not useful", description: "Increased risk of skin rash" }
+      { drug: "Diltiazem", useful: "Not useful", description: "Increases amlodipine levels" },
+      { drug: "Erythromycin", useful: "Not useful", description: "Increases amlodipine levels" },
+      { drug: "Ketoconazole / Itraconazole", useful: "Not useful", description: "Strong CYP3A4 inhibitors" },
+      { drug: "Ritonavir", useful: "Not useful", description: "May increase amlodipine levels" },
+      { drug: "Clarithromycin", useful: "Not useful", description: "Increases risk of kidney injury" },
+      { drug: "Phenobarbital", useful: "Not useful", description: "Decreases amlodipine effect" },
+      { drug: "Phenytoin", useful: "Not useful", description: "May decrease amlodipine levels" },
+      { drug: "Rifampin", useful: "Not useful", description: "May decrease amlodipine levels" },
+      { drug: "Cimetidine", useful: "Useful", description: "No interaction" },
+      { drug: "Antacids (Mg/Al)", useful: "Useful", description: "No interaction" },
+      { drug: "Beta-blockers", useful: "Useful (but risky)", description: "Increases BP-lowering effect" },
+      { drug: "Sildenafil", useful: "Useful (but risky)", description: "Extra BP drop" },
+      { drug: "Atorvastatin", useful: "Useful", description: "Minor increase in atorvastatin levels" },
+      { drug: "Simvastatin", useful: "Not useful", description: "Increases simvastatin levels; keep ≤20 mg" },
+      { drug: "Cyclosporine", useful: "Not useful", description: "Increases cyclosporine levels" },
+      { drug: "Tacrolimus", useful: "Not useful", description: "Increases tacrolimus levels" },
+      { drug: "mTOR inhibitors (sirolimus, everolimus)", useful: "Not useful", description: "Increases drug levels" },
+      { drug: "Dantrolene", useful: "Not useful", description: "Risk of hyperkalemia" }
     ]
   },
   {
@@ -115,6 +133,7 @@ export const drugs = [
     batchNo: "IJKL",
     mfgDate: "03/10/2024",
     expDate: "03/10/2027",
+    serialNumber: "GHI789012",
     authenticityVerified: true,
     doses: [
       { strength: "200mg", form: "Tablet" },
