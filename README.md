@@ -116,6 +116,3 @@ mediscan/
 
 To add a new drug, edit `src/data/drugs.js` and add a new object to the `drugs` array following the existing structure.
 
-## License
-
-Built for educational purposes for pharmacy students.
