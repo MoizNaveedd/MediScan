@@ -18,7 +18,8 @@ import {
   Stethoscope,
   Info,
   Scan,
-  Key
+  Key,
+  ArrowRight
 } from 'lucide-react';
 import { useState } from 'react';
 import { getDrugById } from '../data/drugs';
@@ -36,9 +37,14 @@ const DrugInfoPage = () => {
   });
   
   const drug = getDrugById(id);
-  // Get serial number from location state or use drug's serial number
-  const serialNumber = location.state?.serialNumber || drug?.serialNumber;
-  const scanCount = serialNumber ? getScanCount(serialNumber) : 0;
+  // Check if user came from scan page
+  const fromScan = location.state?.fromScan || false;
+  const infoOnly = location.state?.infoOnly || false;
+  const isAuthenticated = location.state?.authenticated || false;
+  
+  // Only get serial number if authentication was done
+  const serialNumber = isAuthenticated ? (location.state?.serialNumber || null) : null;
+  const scanCount = serialNumber && isAuthenticated ? getScanCount(serialNumber) : 0;
   
   if (!drug) {
     return (
@@ -104,16 +110,42 @@ const DrugInfoPage = () => {
     >
       <div className="max-w-4xl mx-auto">
         {/* Back Button */}
-        <motion.button
+        <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          whileHover={{ x: -5 }}
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-600 hover:text-primary-600 mb-6 transition-colors"
+          className="flex items-center justify-between mb-6"
         >
-          <ArrowLeft className="w-5 h-5" />
-          <span className="font-medium">Back</span>
-        </motion.button>
+          <motion.button
+            whileHover={{ x: -5 }}
+            onClick={() => {
+              // If came from scan page, go back to scan page
+              if (fromScan) {
+                navigate('/scan');
+              } else {
+                navigate(-1);
+              }
+            }}
+            className="flex items-center gap-2 text-gray-600 hover:text-primary-600 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-medium">Back</span>
+          </motion.button>
+          
+          {/* Verify Authenticity Button - Show if not authenticated */}
+          {!isAuthenticated && fromScan && (
+            <motion.button
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/scan')}
+              className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-xl font-semibold hover:bg-primary-600 transition-colors shadow-md"
+            >
+              <Shield className="w-4 h-4" />
+              <span>Verify Authenticity</span>
+            </motion.button>
+          )}
+        </motion.div>
         
         <motion.div
           variants={containerVariants}
@@ -193,8 +225,8 @@ const DrugInfoPage = () => {
                   </div>
                 </div>
 
-                {/* Serial Number and Scan Count */}
-                {serialNumber && (
+                {/* Serial Number and Scan Count - Only show if authenticated */}
+                {isAuthenticated && serialNumber && (
                   <div className="mt-6 pt-6 border-t border-gray-100">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="flex items-center gap-2">
@@ -215,6 +247,36 @@ const DrugInfoPage = () => {
                       </div>
                     </div>
                   </div>
+                )}
+                
+                {/* Authentication Prompt - Show if not authenticated */}
+                {!isAuthenticated && fromScan && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-6 pt-6 border-t border-gray-100"
+                  >
+                    <div className="flex items-center gap-4 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
+                      <Shield className="w-6 h-6 text-amber-600 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-amber-800 mb-1">
+                          Verify Authenticity
+                        </p>
+                        <p className="text-xs text-amber-700">
+                          Verify the serial number to see scan history and ensure authenticity
+                        </p>
+                      </div>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => navigate('/scan')}
+                        className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-xl text-sm font-semibold hover:bg-primary-600 transition-colors shadow-md whitespace-nowrap"
+                      >
+                        <Shield className="w-4 h-4" />
+                        Verify Now
+                      </motion.button>
+                    </div>
+                  </motion.div>
                 )}
               </div>
             </div>

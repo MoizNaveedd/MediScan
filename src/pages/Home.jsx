@@ -222,7 +222,7 @@ const Home = () => {
       
       {/* Footer */}
       <footer className="max-w-6xl mx-auto mt-16 pt-8 border-t border-gray-200 text-center text-gray-500">
-        <p>© 2024 MediScan. Built for Pharmacy Students.</p>
+        <p>© 2025-26 MediScan. All rights reserved.</p>
       </footer>
     </motion.div>
   );

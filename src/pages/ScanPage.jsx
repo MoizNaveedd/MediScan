@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ScanLine, Search, CheckCircle, XCircle, ArrowRight, Key } from 'lucide-react';
+import { ScanLine, Search, CheckCircle, XCircle, ArrowRight, Key, Info, Shield, Pill } from 'lucide-react';
 import Scanner from '../components/Scanner';
 import { getDrugById, getAllDrugs } from '../data/drugs';
 import { incrementScanCount } from '../utils/scanTracker';
@@ -10,7 +10,10 @@ const ScanPage = () => {
   const navigate = useNavigate();
   const [scanResult, setScanResult] = useState(null);
   const [scannedDrug, setScannedDrug] = useState(null);
+  const [showActionButtons, setShowActionButtons] = useState(false);
   const [showSerialInput, setShowSerialInput] = useState(false);
+  const [showAuthSuccess, setShowAuthSuccess] = useState(false);
+  const [authenticatedSerial, setAuthenticatedSerial] = useState(null);
   const [serialInput, setSerialInput] = useState('');
   const [serialError, setSerialError] = useState(null);
   const [manualInput, setManualInput] = useState('');
@@ -37,8 +40,8 @@ const ScanPage = () => {
         setScannedDrug(drug);
         setScanResult({ success: true, drug });
         setError(null);
-        // Show serial input screen instead of auto-navigating
-        setShowSerialInput(true);
+        // Show action buttons screen (View Details or Verify Authenticity)
+        setShowActionButtons(true);
       } else {
         setScanResult({ success: false, message: "Drug not found in database" });
         setError("The scanned QR code doesn't match any medicine in our database.");
@@ -101,8 +104,10 @@ const ScanPage = () => {
     // Increment scan count
     incrementScanCount(trimmedSerial);
 
-    // Navigate to drug details
-    navigate(`/drug/${currentDrug.id}`, { state: { serialNumber: trimmedSerial } });
+    // Show authentication success screen instead of navigating immediately
+    setAuthenticatedSerial(trimmedSerial);
+    setShowSerialInput(false);
+    setShowAuthSuccess(true);
   };
 
   const handleSerialInputChange = (e, isManual = false) => {
@@ -132,8 +137,38 @@ const ScanPage = () => {
     }
   };
 
+  const handleViewDetails = () => {
+    if (scannedDrug) {
+      // Navigate directly to drug info page without serial number
+      // Pass flag to indicate this is info-only view (not authenticated)
+      navigate(`/drug/${scannedDrug.id}`, { state: { fromScan: true, infoOnly: true } });
+    }
+  };
+
+  const handleViewDetailsAfterAuth = () => {
+    if (scannedDrug && authenticatedSerial) {
+      // Navigate to drug details with authenticated serial number
+      navigate(`/drug/${scannedDrug.id}`, { 
+        state: { 
+          serialNumber: authenticatedSerial, 
+          authenticated: true,
+          fromScan: true
+        } 
+      });
+    }
+  };
+
+  const handleVerifyAuthenticity = () => {
+    // Show serial input screen for authentication
+    setShowSerialInput(true);
+    setShowActionButtons(false);
+  };
+
   const handleReset = () => {
     setShowSerialInput(false);
+    setShowActionButtons(false);
+    setShowAuthSuccess(false);
+    setAuthenticatedSerial(null);
     setScannedDrug(null);
     setScanResult(null);
     setSerialInput('');
@@ -185,8 +220,195 @@ const ScanPage = () => {
       className="min-h-screen px-4 py-8"
     >
       <div className="max-w-2xl mx-auto">
-        {/* Serial Input Screen (from QR scan) */}
-        {showSerialInput && scannedDrug ? (
+        {/* Authentication Success Screen */}
+        {showAuthSuccess && scannedDrug && authenticatedSerial ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="space-y-6"
+          >
+            {/* Success Header */}
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center"
+            >
+              <motion.div 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                className="inline-flex items-center justify-center p-6 bg-gradient-to-br from-green-400 to-emerald-500 rounded-3xl mb-6 shadow-2xl"
+              >
+                <Shield className="w-12 h-12 text-white" />
+              </motion.div>
+              <motion.h1 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="text-4xl font-bold text-gray-800 mb-3"
+              >
+                Authenticity Verified!
+              </motion.h1>
+              <motion.p 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="text-gray-600 mb-2 text-xl font-semibold"
+              >
+                {scannedDrug.name}
+              </motion.p>
+              <motion.p 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="text-green-600 font-medium"
+              >
+                Serial: <span className="font-mono">{authenticatedSerial}</span>
+              </motion.p>
+            </motion.div>
+
+            {/* Success Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-3xl p-8 border-2 border-green-200 shadow-xl"
+            >
+              <div className="flex items-center gap-4 mb-4">
+                <CheckCircle className="w-8 h-8 text-green-600 flex-shrink-0" />
+                <div>
+                  <h3 className="text-lg font-bold text-green-800">Medicine Authenticated</h3>
+                  <p className="text-green-700 text-sm">This medicine has been verified as authentic</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Action Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="space-y-4"
+            >
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleViewDetailsAfterAuth}
+                className="w-full flex items-center justify-center gap-4 px-8 py-6 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-2xl font-semibold shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 transition-all"
+              >
+                <Info className="w-6 h-6" />
+                <span className="text-lg">View Medicine Details</span>
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleReset}
+                className="w-full px-6 py-4 bg-gray-100 text-gray-700 rounded-2xl font-semibold hover:bg-gray-200 transition-colors"
+              >
+                Scan Another Medicine
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        ) : showActionButtons && scannedDrug && !showSerialInput && !showAuthSuccess ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="space-y-6"
+          >
+            {/* Enhanced Header */}
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center"
+            >
+              <motion.div 
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                className="inline-flex items-center justify-center p-5 bg-gradient-to-br from-green-400 to-emerald-500 rounded-3xl mb-6 shadow-xl"
+              >
+                <CheckCircle className="w-10 h-10 text-white" />
+              </motion.div>
+              <motion.h1 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="text-4xl font-bold text-gray-800 mb-3"
+              >
+                Medicine Found!
+              </motion.h1>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3 }}
+                className="inline-flex items-center gap-3 px-6 py-3 bg-white rounded-2xl shadow-lg border border-gray-100 mb-4"
+              >
+                <div className="p-2 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl">
+                  <Pill className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-left">
+                  <p className="text-gray-600 font-semibold text-lg">{scannedDrug.name}</p>
+                  <p className="text-gray-500 text-sm">{scannedDrug.genericName}</p>
+                </div>
+              </motion.div>
+              <motion.p 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="text-gray-500 text-sm"
+              >
+                Choose an option below to proceed
+              </motion.p>
+            </motion.div>
+
+            {/* Enhanced Action Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="space-y-4"
+            >
+              {/* View Details Button */}
+              <motion.button
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleViewDetails}
+                className="w-full flex items-center justify-center gap-4 px-8 py-6 bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700 text-white rounded-2xl font-semibold shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 transition-all group"
+              >
+                <div className="p-2 bg-white/20 rounded-xl group-hover:bg-white/30 transition-colors">
+                  <Info className="w-6 h-6" />
+                </div>
+                <span className="text-lg">View Medicine Details</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </motion.button>
+
+              {/* Verify Authenticity Button */}
+              <motion.button
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleVerifyAuthenticity}
+                className="w-full flex items-center justify-center gap-4 px-8 py-6 bg-white text-primary-600 rounded-2xl font-semibold border-2 border-primary-300 hover:border-primary-500 hover:bg-gradient-to-r hover:from-primary-50 hover:to-blue-50 transition-all shadow-md group"
+              >
+                <div className="p-2 bg-primary-100 rounded-xl group-hover:bg-primary-200 transition-colors">
+                  <Shield className="w-6 h-6" />
+                </div>
+                <span className="text-lg">Verify Authenticity</span>
+                <Key className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+              </motion.button>
+
+              {/* Cancel Button */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleReset}
+                className="w-full px-6 py-4 bg-gray-100 text-gray-700 rounded-2xl font-semibold hover:bg-gray-200 transition-colors"
+              >
+                Scan Another Medicine
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        ) : showSerialInput && scannedDrug ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -201,7 +423,7 @@ const ScanPage = () => {
               <div className="inline-flex items-center justify-center p-4 bg-green-100 rounded-2xl mb-4">
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">Medicine Verified!</h1>
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">Verify Authenticity</h1>
               <p className="text-gray-600 mb-1">{scannedDrug.name}</p>
               <p className="text-gray-500 text-sm">Please enter the 9-character serial number (3 letters + 6 digits)</p>
             </motion.div>
@@ -224,7 +446,7 @@ const ScanPage = () => {
                     type="text"
                     value={serialInput}
                     onChange={(e) => handleSerialInputChange(e, false)}
-                    placeholder="ABC123456"
+                    placeholder="XXXXXXX"
                     maxLength={9}
                     className="w-full px-6 py-4 text-2xl text-center tracking-widest rounded-2xl border-2 border-gray-200 focus:border-primary-400 focus:outline-none transition-colors font-mono uppercase"
                     autoFocus
@@ -250,11 +472,15 @@ const ScanPage = () => {
                     type="button"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={handleReset}
-                    type="button"
+                    onClick={() => {
+                      setShowSerialInput(false);
+                      setShowActionButtons(true);
+                      setSerialInput('');
+                      setSerialError(null);
+                    }}
                     className="flex-1 px-6 py-4 bg-gray-100 text-gray-700 rounded-2xl font-semibold hover:bg-gray-200 transition-colors"
                   >
-                    Cancel
+                    Back
                   </motion.button>
                   <motion.button
                     type="submit"
@@ -356,7 +582,7 @@ const ScanPage = () => {
                     type="text"
                     value={manualSerialInput}
                     onChange={(e) => handleSerialInputChange(e, true)}
-                    placeholder="ABC123456"
+                    placeholder="XXXXXXX"
                     maxLength={9}
                     className="w-full px-6 py-4 text-2xl text-center tracking-widest rounded-2xl border-2 border-gray-200 focus:border-primary-400 focus:outline-none transition-colors font-mono uppercase"
                     autoFocus
@@ -402,8 +628,8 @@ const ScanPage = () => {
           </motion.div>
         ) : (
           <>
-            {/* Only show manual search and quick links when not in serial input mode */}
-            {!showSerialInput && (
+            {/* Only show manual search and quick links when not in serial input mode or action buttons */}
+            {!showSerialInput && !showActionButtons && (
           <>
             {/* Divider */}
             <div className="relative my-10">
